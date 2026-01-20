@@ -6,10 +6,11 @@ Coordinates the sync workflow: fetch, process, write.
 
 import logging
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Tuple
 
 from .config import Config, load_config
 from .file_writer import FileWriter
@@ -155,20 +156,76 @@ def run_sync(config: Config) -> SyncStats:
     return stats
 
 
-def seed_project_templates(config: Config) -> None:
+def _detect_repo_from_git(cwd: Path) -> Optional[str]:
+    """Return owner/repo from git remote.origin.url if available."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(cwd), "config", "--get", "remote.origin.url"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+    url = result.stdout.strip()
+    if not url:
+        return None
+
+    path = ""
+    if url.startswith("git@"):
+        if ":" not in url:
+            return None
+        path = url.split(":", 1)[1]
+    else:
+        from urllib.parse import urlparse
+
+        parsed = urlparse(url)
+        if not parsed.netloc:
+            return None
+        path = parsed.path.lstrip("/")
+
+    if path.endswith(".git"):
+        path = path[:-4]
+    parts = path.split("/")
+    if len(parts) < 2:
+        return None
+    return f"{parts[0]}/{parts[1]}"
+
+
+def _write_repo_to_env(env_path: Path, repo: str) -> None:
+    """Update GITHUB_REPO in .env if it has the placeholder value."""
+    lines = env_path.read_text().splitlines()
+    updated = []
+    replaced = False
+    for line in lines:
+        if line.startswith("GITHUB_REPO=") and line.endswith("owner/repo"):
+            updated.append(f"GITHUB_REPO={repo}")
+            replaced = True
+        else:
+            updated.append(line)
+    if replaced:
+        env_path.write_text("\n".join(updated) + "\n")
+
+
+def seed_project_templates(
+    config: Config,
+) -> Tuple[bool, Optional[Path], Optional[str]]:
     """Copy default templates into the project if missing."""
     if config.dry_run:
-        return
+        return False, None, None
 
     script_root = Path(__file__).resolve().parents[1]
     seed_root = script_root / "issue-sync"
     if not seed_root.exists():
-        return
+        return False, None, None
 
     issue_sync_dir = config.issue_sync_dir
+    seeded_issue_sync = False
     if not issue_sync_dir.exists():
         config.output_dir.mkdir(parents=True, exist_ok=True)
         shutil.copytree(seed_root, issue_sync_dir)
+        seeded_issue_sync = True
     else:
         def copy_if_missing(source: Path, destination: Path) -> None:
             if not source.exists() or destination.exists():
@@ -185,8 +242,16 @@ def seed_project_templates(config: Config) -> None:
 
     env_template = Path(__file__).resolve().parent / ".env.template"
     env_target = script_root / ".env"
+    created_env = False
+    detected_repo = None
     if env_template.exists() and not env_target.exists():
         shutil.copyfile(env_template, env_target)
+        created_env = True
+        detected_repo = _detect_repo_from_git(Path.cwd())
+        if detected_repo:
+            _write_repo_to_env(env_target, detected_repo)
+
+    return seeded_issue_sync, (env_target if created_env else None), detected_repo
 
 
 
@@ -211,8 +276,15 @@ def main():
         )
 
     if config.init_only:
-        seed_project_templates(config)
-        logger.info("Initialized templates in %s", config.issue_sync_dir)
+        seeded, env_path, detected_repo = seed_project_templates(config)
+        if seeded:
+            logger.info("Initialized templates in %s", config.issue_sync_dir)
+        if env_path:
+            logger.info("Created .env file in %s", env_path.parent)
+            if detected_repo:
+                logger.info("Set GITHUB_REPO to %s", detected_repo)
+            else:
+                logger.info("Please update GITHUB_REPO with your owner/repo")
         return
 
     if config.dry_run:
