@@ -15,6 +15,12 @@ from typing import Optional
 
 from dotenv import load_dotenv
 
+DEFAULT_OUTPUT_DIR = Path(".github")
+ISSUE_SYNC_DIRNAME = "issue-sync"
+ISSUES_DIRNAME = "issues"
+PLANS_DIRNAME = "plans"
+
+
 
 @dataclass
 class Config:
@@ -24,7 +30,7 @@ class Config:
     github_repo: str
 
     # Output paths
-    output_dir: Path = field(default_factory=lambda: Path("issues"))
+    output_dir: Path = field(default_factory=lambda: DEFAULT_OUTPUT_DIR)
     images_subdir: str = "images"
 
     # Sync behavior
@@ -39,11 +45,27 @@ class Config:
     verbose: bool = False
     log_level: str = "INFO"
     single_issue: Optional[int] = None
+    legacy_output_dir: Optional[Path] = None
+
+    @property
+    def issue_sync_dir(self) -> Path:
+        """Base directory for issue-sync assets."""
+        return self.output_dir / ISSUE_SYNC_DIRNAME
+
+    @property
+    def issues_dir(self) -> Path:
+        """Full path to issues directory."""
+        return self.issue_sync_dir / ISSUES_DIRNAME
+
+    @property
+    def plans_dir(self) -> Path:
+        """Full path to plans directory."""
+        return self.issue_sync_dir / PLANS_DIRNAME
 
     @property
     def images_dir(self) -> Path:
         """Full path to images directory."""
-        return self.output_dir / self.images_subdir
+        return self.issues_dir / self.images_subdir
 
     @property
     def repo_owner(self) -> str:
@@ -98,7 +120,7 @@ Examples:
     parser.add_argument(
         "--output-dir",
         dest="output_dir",
-        help="Output directory for issues. Default: issues",
+        help="Output directory base (default: .github)",
     )
     parser.add_argument(
         "--force-images",
@@ -140,7 +162,18 @@ Examples:
     if "/" not in github_repo or len(github_repo.split("/")) != 2:
         parser.error(f"Invalid repository format: {github_repo}. Use owner/repo format.")
 
-    output_dir = Path(args.output_dir or os.getenv("OUTPUT_DIR", "issues"))
+    output_dir = Path(
+        args.output_dir or os.getenv("OUTPUT_DIR", str(DEFAULT_OUTPUT_DIR))
+    )
+    output_dir = output_dir.expanduser()
+    legacy_output_dir: Optional[Path] = None
+
+    if output_dir.name == ISSUES_DIRNAME and output_dir.parent.name == ISSUE_SYNC_DIRNAME:
+        legacy_output_dir = output_dir
+        output_dir = output_dir.parent.parent
+    elif output_dir.name == ISSUE_SYNC_DIRNAME:
+        legacy_output_dir = output_dir
+        output_dir = output_dir.parent
 
     sync_closed = args.sync_closed or parse_bool(os.getenv("SYNC_CLOSED"), False)
 
@@ -155,4 +188,5 @@ Examples:
         verbose=args.verbose,
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         single_issue=args.single_issue,
+        legacy_output_dir=legacy_output_dir,
     )

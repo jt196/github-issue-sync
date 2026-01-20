@@ -42,8 +42,8 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Note: issues/ and plans/ are intentionally NOT ignored
-# They contain the synced issue documentation
+# Note: issue/plans outputs are intentionally NOT ignored
+# Recommended defaults: .github/issue-sync/issues/ and .github/issue-sync/plans/
 
-# Custom plan template (copy from plan-template.example.md)
-plans/plan-template.md
+# Custom plan template (optional local override)
+.github/issue-sync/plans/plan-template.md

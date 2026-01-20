@@ -5,8 +5,10 @@ Coordinates the sync workflow: fetch, process, write.
 """
 
 import logging
+import shutil
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List
 
 from .config import Config, load_config
@@ -56,6 +58,8 @@ def run_sync(config: Config) -> SyncStats:
     logger = logging.getLogger(__name__)
     stats = SyncStats()
 
+    seed_project_templates(config)
+
     # Initialize components
     fetcher = IssueFetcher(config)
     image_processor = ImageProcessor(
@@ -64,7 +68,7 @@ def run_sync(config: Config) -> SyncStats:
         max_retries=config.image_retries,
     )
     file_writer = FileWriter(
-        output_dir=config.output_dir,
+        output_dir=config.issues_dir,
         dry_run=config.dry_run,
     )
 
@@ -140,10 +144,42 @@ def run_sync(config: Config) -> SyncStats:
     if not config.single_issue:
         logger.info("")
         logger.info("Generating index...")
-        index_content = generate_index(issues, config.github_repo)
+        index_content = generate_index(
+            issues,
+            config.github_repo,
+            config.issues_dir,
+            config.images_dir,
+        )
         file_writer.write_index(index_content)
 
     return stats
+
+
+def seed_project_templates(config: Config) -> None:
+    """Copy default templates into the project if missing."""
+    if config.dry_run:
+        return
+
+    seed_root = Path(__file__).resolve().parents[1] / "issue-sync"
+    if not seed_root.exists():
+        return
+
+    issue_sync_dir = config.issue_sync_dir
+    if not issue_sync_dir.exists():
+        config.output_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(seed_root, issue_sync_dir)
+        return
+
+    plan_template = seed_root / "plans" / "plan-template.md"
+    if not plan_template.exists():
+        return
+
+    dest_template = config.plans_dir / "plan-template.md"
+    if dest_template.exists():
+        return
+
+    config.plans_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(plan_template, dest_template)
 
 
 def main():
@@ -158,6 +194,13 @@ def main():
 
     setup_logging(config.verbose)
     logger = logging.getLogger(__name__)
+
+    if config.legacy_output_dir:
+        logger.warning(
+            "Legacy OUTPUT_DIR detected (%s). Using base directory: %s",
+            config.legacy_output_dir,
+            config.output_dir,
+        )
 
     if config.dry_run:
         logger.info("DRY RUN - no files will be written")
@@ -184,7 +227,7 @@ def main():
             logger.warning(f"  - {error}")
 
     logger.info("")
-    logger.info(f"Output: {config.output_dir}")
+    logger.info(f"Output: {config.issues_dir}")
 
     # Exit with error code if there were errors
     if stats.errors:

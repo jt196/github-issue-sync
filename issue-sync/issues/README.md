@@ -71,16 +71,16 @@ Total issues: 17
 
 ```bash
 # Read a specific issue
-cat issues/33.md
+cat .github/issue-sync/issues/33.md
 
 # View all open issues
-cat issues/README.md
+cat .github/issue-sync/issues/README.md
 ```
 
 ### Working on an Issue
 
-1. Read the issue file: `issues/{number}.md`
-2. View screenshots (images are in `issues/images/`)
+1. Read the issue file: `.github/issue-sync/issues/{number}.md`
+2. View screenshots (images are in `.github/issue-sync/issues/images/`)
 3. Create a branch: `git checkout -b issue-{number}-description`
 4. Implement changes
 5. Reference issue in commit: `Fixes #{number}: Description`

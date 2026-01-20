@@ -14,7 +14,7 @@ Options:
 
 Environment Variables:
     GITHUB_REPO          Repository to sync (owner/repo format)
-    OUTPUT_DIR           Output directory (default: issues)
+    OUTPUT_DIR           Output directory base (default: .github)
     SYNC_CLOSED          Include closed issues (default: false)
 
 See README.md for full documentation.

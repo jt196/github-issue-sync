@@ -1,7 +1,7 @@
 # Plan Template
 
-Copy this file to `plan-template.md` and customize for your project.
-The `plan-template.md` file is gitignored, so your customizations stay local.
+This file is copied into your project at `.github/issue-sync/plans/plan-template.md`.
+Customize the project copy as needed.
 
 ---
 

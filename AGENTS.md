@@ -4,10 +4,10 @@ This project uses `github-issue-sync` to sync GitHub issues to local markdown fi
 
 ## Issue Files
 
-Issues are synced to the `issues/` folder:
+Issues are synced under the `OUTPUT_DIR` base (default: `.github`) at:
 
 ```
-issues/
+.github/issue-sync/issues/
 ├── README.md           # Index of all issues
 ├── 42.md               # Individual issue files
 └── images/             # Downloaded images
@@ -15,8 +15,8 @@ issues/
 
 ### Reading Issues
 
-- **Index**: `issues/README.md` - all issues sorted by number, grouped by milestone
-- **Single issue**: `issues/{number}.md` - full issue with description, comments, metadata
+- **Index**: `.github/issue-sync/issues/README.md` - all issues sorted by number, grouped by milestone
+- **Single issue**: `.github/issue-sync/issues/{number}.md` - full issue with description, comments, metadata
 
 ### Issue File Structure
 
@@ -29,7 +29,7 @@ Each issue file contains:
 
 ## Working on Issues
 
-1. Read the issue file: `issues/{number}.md`
+1. Read the issue file: `.github/issue-sync/issues/{number}.md`
 2. Check for related issues in body/comments
 3. Create branch: `git checkout -b issue-{number}-description`
 4. Implement the fix
@@ -37,7 +37,7 @@ Each issue file contains:
 
 ## Plans
 
-The `plans/` folder is for implementation plans before coding.
+The `plans/` folder (default: `.github/issue-sync/plans/`) is for implementation plans before coding.
 
 ### When to Create a Plan
 
@@ -48,7 +48,7 @@ Check the `PLANS_CREATE` setting in `.env`:
 
 ### Plan Template
 
-See `plans/plan-template.example.md` for the recommended format. Copy to `plans/plan-template.md` to customize for your project.
+See `issue-sync/plans/plan-template.md` for the recommended format. It is copied to `.github/issue-sync/plans/plan-template.md` on first run.
 
 ### General Guidelines
 

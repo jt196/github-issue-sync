@@ -7,6 +7,7 @@ instructions.
 
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Set
 
 from .issue_fetcher import Issue
@@ -23,18 +24,27 @@ def _format_date(iso_string: str) -> str:
         return iso_string
 
 
-def generate_index(issues: List[Issue], repo: str) -> str:
+def generate_index(
+    issues: List[Issue],
+    repo: str,
+    issues_dir: Path,
+    images_dir: Path,
+) -> str:
     """
     Generate the master README.md index.
 
     Args:
         issues: List of all synced issues
         repo: Repository name for display
+        issues_dir: Output directory path for issue files
+        images_dir: Images directory path
 
     Returns:
         Complete markdown content for README.md
     """
     lines = []
+    issues_dir_str = issues_dir.as_posix().rstrip("/")
+    images_dir_str = images_dir.as_posix().rstrip("/")
 
     # Header
     lines.append(f"# GitHub Issues - {repo}")
@@ -132,16 +142,16 @@ def generate_index(issues: List[Issue], repo: str) -> str:
     lines.append("")
     lines.append("```bash")
     lines.append("# Read a specific issue")
-    lines.append("cat issues/33.md")
+    lines.append(f"cat {issues_dir_str}/33.md")
     lines.append("")
     lines.append("# View all open issues")
-    lines.append("cat issues/README.md")
+    lines.append(f"cat {issues_dir_str}/README.md")
     lines.append("```")
     lines.append("")
     lines.append("### Working on an Issue")
     lines.append("")
-    lines.append("1. Read the issue file: `issues/{number}.md`")
-    lines.append("2. View screenshots (images are in `issues/images/`)")
+    lines.append(f"1. Read the issue file: `{issues_dir_str}/{{number}}.md`")
+    lines.append(f"2. View screenshots (images are in `{images_dir_str}/`)")
     lines.append("3. Create a branch: `git checkout -b issue-{number}-description`")
     lines.append("4. Implement changes")
     lines.append("5. Reference issue in commit: `Fixes #{number}: Description`")

@@ -93,8 +93,8 @@ Create a `.env` file in your project root:
 # Required: GitHub repository to sync
 GITHUB_REPO=owner/repo
 
-# Output directory (default: issues)
-OUTPUT_DIR=issues
+# Output directory base (default: .github)
+OUTPUT_DIR=.github
 
 # Sync behavior
 # false (default): Only sync open issues, delete files when issues close
@@ -113,15 +113,19 @@ LOG_LEVEL=INFO
 ```
 your-project/
 ├── .env                    # Your configuration
-├── issues/
-│   ├── README.md           # Auto-generated index
-│   ├── 1.md                # Issue files
-│   ├── 2.md
-│   ├── ...
-│   └── images/             # Downloaded images
-│       ├── issue-1-1.png
-│       └── ...
-└── .github-issue-sync/        # Submodule (if using)
+├── .github/
+│   └── issue-sync/
+│       ├── issues/
+│       │   ├── README.md   # Auto-generated index
+│       │   ├── 1.md        # Issue files
+│       │   ├── 2.md
+│       │   ├── ...
+│       │   └── images/     # Downloaded images
+│       │       ├── issue-1-1.png
+│       │       └── ...
+│       └── plans/
+│           └── plan-template.md
+└── .github-issue-sync/      # Submodule (if using)
 ```
 
 ## Change Detection
@@ -137,9 +141,19 @@ The script computes a content hash for each issue based on:
 
 Agent instructions are in `AGENTS.md` (symlinked as `CLAUDE.md`).
 
-The `plans/` folder contains:
-- `plan-template.example.md` - Template for implementation plans
-- Copy to `plan-template.md` to customize for your project
+The `issue-sync/` folder in this repo contains:
+- `plan-template.md` - Default template for implementation plans
+- On first run, this gets copied to your project under `.github/issue-sync/`
+
+## Running from your project
+
+Run the script from your project root so `.env` and `.github/` resolve correctly:
+
+```bash
+python .github-issue-sync/sync_issues.py
+```
+
+If you run it from another directory, set `OUTPUT_DIR` to an absolute path.
 
 Configure agent behavior in `.env`:
 ```bash
