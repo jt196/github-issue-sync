@@ -26,18 +26,18 @@ def _load_env() -> Optional[Path]:
     """Load .env from common locations, returning the path if found."""
     script_root = Path(__file__).resolve().parents[1]
     candidates = [
-        Path.cwd() / ".env",
+        script_root / ".env",
         Path.cwd() / SUBMODULE_DIRNAME / ".env",
         Path.cwd() / ".github" / ISSUE_SYNC_DIRNAME / ".env",
         Path.cwd() / ISSUE_SYNC_DIRNAME / ".env",
         Path.cwd().parent / SUBMODULE_DIRNAME / ".env",
         Path.cwd().parent / ".github" / ISSUE_SYNC_DIRNAME / ".env",
-        script_root / ".env",
+        Path.cwd() / ".env",
         Path(__file__).resolve().parent / ".env",
     ]
     for candidate in candidates:
         if candidate.exists():
-            load_dotenv(candidate)
+            load_dotenv(candidate, override=True)
             return candidate
     load_dotenv()
     return None
