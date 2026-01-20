@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-git-issue-sync: Sync GitHub issues to local markdown files.
+github-issue-sync: Sync GitHub issues to local markdown files.
 
 Usage:
     python sync_issues.py [options]

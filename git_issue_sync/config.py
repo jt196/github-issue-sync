@@ -1,5 +1,5 @@
 """
-Configuration management for git-issue-sync.
+Configuration management for github-issue-sync.
 
 Loads configuration from:
 1. .env file (via python-dotenv)
@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 
 @dataclass
 class Config:
-    """Configuration for git-issue-sync."""
+    """Configuration for github-issue-sync."""
 
     # Required
     github_repo: str

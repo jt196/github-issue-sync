@@ -1,4 +1,4 @@
-# git-issue-sync
+# github-issue-sync
 
 Sync GitHub issues to local markdown files for use with AI coding assistants.
 
@@ -23,13 +23,13 @@ Sync GitHub issues to local markdown files for use with AI coding assistants.
 Add to your project as a submodule:
 
 ```bash
-git submodule add https://github.com/jt196/git-issue-sync .git-issue-sync
+git submodule add https://github.com/jt196/github-issue-sync .github-issue-sync
 ```
 
 ### Option 2: Clone Directly
 
 ```bash
-git clone https://github.com/jt196/git-issue-sync
+git clone https://github.com/jt196/github-issue-sync
 ```
 
 ## Setup
@@ -45,7 +45,7 @@ source .venv/bin/activate  # Linux/macOS
 # Install dependencies
 pip install -r requirements.txt
 # Or if using as submodule:
-pip install -r .git-issue-sync/requirements.txt
+pip install -r .github-issue-sync/requirements.txt
 ```
 
 1. **Authenticate with GitHub CLI** (if not already):
@@ -58,7 +58,7 @@ gh auth login
 
 ```bash
 # Copy example config
-cp .env.example .env  # or .git-issue-sync/.env.example .env
+cp .env.example .env  # or .github-issue-sync/.env.example .env
 
 # Edit .env with your repository
 # GITHUB_REPO=owner/repo
@@ -70,7 +70,7 @@ cp .env.example .env  # or .git-issue-sync/.env.example .env
 # Basic sync
 python sync_issues.py
 # Or if using as submodule:
-python .git-issue-sync/sync_issues.py
+python .github-issue-sync/sync_issues.py
 
 # Sync a single issue
 python sync_issues.py --issue 42
@@ -121,7 +121,7 @@ your-project/
 │   └── images/             # Downloaded images
 │       ├── issue-1-1.png
 │       └── ...
-└── .git-issue-sync/        # Submodule (if using)
+└── .github-issue-sync/        # Submodule (if using)
 ```
 
 ## Change Detection

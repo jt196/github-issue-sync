@@ -1,6 +1,6 @@
 # Agent Instructions
 
-This project uses `git-issue-sync` to sync GitHub issues to local markdown files.
+This project uses `github-issue-sync` to sync GitHub issues to local markdown files.
 
 ## Issue Files
 
