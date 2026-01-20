@@ -22,6 +22,9 @@ Sync GitHub issues to local markdown files for use with AI coding assistants.
 project-root/ 
     .github-issue-sync/ # cloned directory or submodule
     .github/ # default location OUTPUT_DIR will place the issue-sync/ folder
+your-project/
+├── .github-issue-sync/  # cloned directory or submodule
+├── .github/ # default location OUTPUT_DIR will place the issue-sync/ folder
 ```
 
 ## Installation
@@ -94,6 +97,7 @@ Configure `.github-issue-sync/.env` in your project:
 
 ```bash
 # Required: GitHub repository to sync
+# Note: if there's a remote repo set in the root folder, this should auto-populate
 GITHUB_REPO=owner/repo
 
 # Output directory base (default: .github)
@@ -113,7 +117,7 @@ LOG_LEVEL=INFO
 
 ## Output Structure
 
-```
+```bash
 your-project/
 ├── .github-issue-sync/
 │   └── .env                # Your configuration
@@ -129,7 +133,6 @@ your-project/
 │       │       └── ...
 │       └── plans/
 │           └── plan-template.md
-└── .github-issue-sync/      # Submodule (if using)
 ```
 
 ## Change Detection
