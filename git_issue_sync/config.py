@@ -38,6 +38,7 @@ class Config:
     dry_run: bool = False
     verbose: bool = False
     log_level: str = "INFO"
+    single_issue: Optional[int] = None
 
     @property
     def images_dir(self) -> Path:
@@ -82,6 +83,7 @@ def load_config() -> Config:
         epilog="""
 Examples:
   python sync_issues.py                    # Sync with .env settings
+  python sync_issues.py --issue 42         # Sync only issue #42
   python sync_issues.py --verbose          # Verbose output
   python sync_issues.py --dry-run          # Preview changes without writing
   python sync_issues.py --force-images     # Re-download all images
@@ -118,6 +120,12 @@ Examples:
         action="store_true",
         help="Enable verbose logging.",
     )
+    parser.add_argument(
+        "--issue",
+        type=int,
+        dest="single_issue",
+        help="Sync only a specific issue number.",
+    )
 
     args = parser.parse_args()
 
@@ -146,4 +154,5 @@ Examples:
         dry_run=args.dry_run,
         verbose=args.verbose,
         log_level=os.getenv("LOG_LEVEL", "INFO"),
+        single_issue=args.single_issue,
     )

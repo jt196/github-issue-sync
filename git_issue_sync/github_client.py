@@ -146,6 +146,46 @@ def fetch_issue_details(repo: str, issue_number: int) -> Dict[str, Any]:
     return json.loads(output)
 
 
+def fetch_single_issue(repo: str, issue_number: int) -> Dict[str, Any]:
+    """
+    Fetch a single issue with full details via gh issue view.
+
+    Args:
+        repo: Repository in owner/repo format
+        issue_number: Issue number
+
+    Returns:
+        Issue dictionary with same structure as fetch_issues_list
+    """
+    fields = [
+        "number",
+        "title",
+        "body",
+        "state",
+        "labels",
+        "assignees",
+        "milestone",
+        "createdAt",
+        "updatedAt",
+        "closedAt",
+        "comments",
+        "author",
+    ]
+
+    args = [
+        "issue",
+        "view",
+        str(issue_number),
+        "--repo",
+        repo,
+        "--json",
+        ",".join(fields),
+    ]
+
+    output = run_gh_command(args)
+    return json.loads(output)
+
+
 def fetch_tracked_issues(
     owner: str, name: str, issue_number: int, limit: int = 50
 ) -> List[Dict[str, Any]]:

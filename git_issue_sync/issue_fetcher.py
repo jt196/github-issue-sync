@@ -10,6 +10,7 @@ from .config import Config
 from .github_client import (
     fetch_issues_list,
     fetch_issue_details,
+    fetch_single_issue,
     fetch_tracked_issues,
     GitHubClientError,
 )
@@ -168,6 +169,24 @@ class IssueFetcher:
             issues.append(issue)
 
         return issues
+
+    def fetch_issue(self, issue_number: int) -> Issue:
+        """
+        Fetch a single issue with relationships.
+
+        Args:
+            issue_number: The issue number to fetch
+
+        Returns:
+            Issue object with sub-issues and tracked issues populated
+        """
+        logger.info(f"Fetching issue #{issue_number} from {self.repo}...")
+
+        raw = fetch_single_issue(self.repo, issue_number)
+        issue = _parse_issue(raw, self.repo)
+        self._enrich_with_relationships(issue)
+
+        return issue
 
     def _enrich_with_relationships(self, issue: Issue) -> None:
         """Add sub-issues and tracked issues data to an issue."""

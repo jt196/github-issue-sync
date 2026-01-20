@@ -72,6 +72,9 @@ python sync_issues.py
 # Or if using as submodule:
 python .git-issue-sync/sync_issues.py
 
+# Sync a single issue
+python sync_issues.py --issue 42
+
 # With options
 python sync_issues.py --verbose          # Verbose output
 python sync_issues.py --dry-run          # Preview without writing
@@ -130,24 +133,19 @@ The script computes a content hash for each issue based on:
 
 **Important:** The `updatedAt` timestamp is NOT included in the hash. This means if GitHub updates the timestamp but no actual content changed, your issue files won't be rewritten. The "Updated" column appears only in the README.md index.
 
-## Working with Synced Issues
+## For AI Assistants
 
-### For AI Assistants
+Agent instructions are in `AGENTS.md` (symlinked as `CLAUDE.md`).
 
-Point your AI assistant to read issues:
+The `plans/` folder contains:
+- `plan-template.example.md` - Template for implementation plans
+- Copy to `plan-template.md` to customize for your project
 
+Configure agent behavior in `.env`:
+```bash
+# When agents should create plans: ask, always, never
+PLANS_CREATE=ask
 ```
-Read issues/README.md for the issue index
-Read issues/42.md for a specific issue
-```
-
-### Workflow
-
-1. Sync issues: `python sync_issues.py`
-2. Read an issue file
-3. Create a branch: `git checkout -b issue-42-fix-bug`
-4. Implement the fix
-5. Commit with reference: `git commit -m "Fix #42: Description"`
 
 ## Troubleshooting
 

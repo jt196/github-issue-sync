@@ -68,17 +68,22 @@ def run_sync(config: Config) -> SyncStats:
         dry_run=config.dry_run,
     )
 
-    # Fetch issues
-    logger.info(f"Fetching issues from {config.github_repo}...")
+    # Fetch issues (single or all)
     try:
-        issues = fetcher.fetch_all_issues()
+        if config.single_issue:
+            logger.info(f"Fetching issue #{config.single_issue} from {config.github_repo}...")
+            issue = fetcher.fetch_issue(config.single_issue)
+            issues = [issue]
+        else:
+            logger.info(f"Fetching issues from {config.github_repo}...")
+            issues = fetcher.fetch_all_issues()
     except Exception as e:
         logger.error(f"Failed to fetch issues: {e}")
         stats.errors.append(str(e))
         return stats
 
     stats.total_issues = len(issues)
-    logger.info(f"Found {len(issues)} issues")
+    logger.info(f"Found {len(issues)} issue(s)")
 
     if not issues:
         logger.info("No issues to sync")
@@ -125,17 +130,18 @@ def run_sync(config: Config) -> SyncStats:
             logger.warning(f"Error processing issue #{issue.number}: {e}")
             stats.errors.append(f"Issue #{issue.number}: {e}")
 
-    # Remove closed issue files (when SYNC_CLOSED=false)
-    if not config.sync_closed:
+    # Remove closed issue files (when SYNC_CLOSED=false) - skip for single issue sync
+    if not config.sync_closed and not config.single_issue:
         synced_numbers = {i.number for i in issues}
         removed = file_writer.remove_closed_issues(synced_numbers)
         stats.files_removed = len(removed)
 
-    # Generate index
-    logger.info("")
-    logger.info("Generating index...")
-    index_content = generate_index(issues, config.github_repo)
-    file_writer.write_index(index_content)
+    # Generate index (skip for single issue sync)
+    if not config.single_issue:
+        logger.info("")
+        logger.info("Generating index...")
+        index_content = generate_index(issues, config.github_repo)
+        file_writer.write_index(index_content)
 
     return stats
 

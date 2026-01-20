@@ -44,3 +44,6 @@ htmlcov/
 
 # Note: issues/ and plans/ are intentionally NOT ignored
 # They contain the synced issue documentation
+
+# Custom plan template (copy from plan-template.example.md)
+plans/plan-template.md
