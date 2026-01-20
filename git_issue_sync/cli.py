@@ -160,7 +160,8 @@ def seed_project_templates(config: Config) -> None:
     if config.dry_run:
         return
 
-    seed_root = Path(__file__).resolve().parents[1] / "issue-sync"
+    script_root = Path(__file__).resolve().parents[1]
+    seed_root = script_root / "issue-sync"
     if not seed_root.exists():
         return
 
@@ -168,21 +169,24 @@ def seed_project_templates(config: Config) -> None:
     if not issue_sync_dir.exists():
         config.output_dir.mkdir(parents=True, exist_ok=True)
         shutil.copytree(seed_root, issue_sync_dir)
-        return
+    else:
+        def copy_if_missing(source: Path, destination: Path) -> None:
+            if not source.exists() or destination.exists():
+                return
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, destination)
 
-    def copy_if_missing(source: Path, destination: Path) -> None:
-        if not source.exists() or destination.exists():
-            return
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, destination)
+        copy_if_missing(
+            seed_root / "plans" / "plan-template.md",
+            config.plans_dir / "plan-template.md",
+        )
+        copy_if_missing(seed_root / "AGENTS.md", issue_sync_dir / "AGENTS.md")
+        copy_if_missing(seed_root / "CLAUDE.md", issue_sync_dir / "CLAUDE.md")
 
-    copy_if_missing(
-        seed_root / "plans" / "plan-template.md",
-        config.plans_dir / "plan-template.md",
-    )
-    copy_if_missing(seed_root / "AGENTS.md", issue_sync_dir / "AGENTS.md")
-    copy_if_missing(seed_root / "CLAUDE.md", issue_sync_dir / "CLAUDE.md")
-    copy_if_missing(seed_root / ".env", issue_sync_dir / ".env")
+    env_template = Path(__file__).resolve().parent / ".env.template"
+    env_target = script_root / ".env"
+    if env_template.exists() and not env_target.exists():
+        shutil.copyfile(env_template, env_target)
 
 
 
@@ -205,6 +209,11 @@ def main():
             config.legacy_output_dir,
             config.output_dir,
         )
+
+    if config.init_only:
+        seed_project_templates(config)
+        logger.info("Initialized templates in %s", config.issue_sync_dir)
+        return
 
     if config.dry_run:
         logger.info("DRY RUN - no files will be written")

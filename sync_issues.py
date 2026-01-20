@@ -11,6 +11,7 @@ Options:
     --sync-closed        Include closed issues in sync
     --dry-run            Show what would change without writing files
     --verbose, -v        Enable verbose logging
+    --init               Seed .github/issue-sync templates and exit
 
 Environment Variables:
     GITHUB_REPO          Repository to sync (owner/repo format)

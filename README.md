@@ -32,12 +32,6 @@ Add to your project as a submodule:
 git submodule add https://github.com/jt196/github-issue-sync .github-issue-sync
 ```
 
-### Option 2: Clone Directly
-
-```bash
-git clone https://github.com/jt196/github-issue-sync
-```
-
 ## Setup
 
 1. **Install dependencies** (virtual environment recommended) in project root:
@@ -61,15 +55,17 @@ gh auth login
 1. **Configure**:
 
 ```bash
-# First run seeds `.github/issue-sync/` in your project
-python .github-issue-sync/sync_issues.py --dry-run
+# Initialize templates in your project
+python .github-issue-sync/sync_issues.py --init
 
-# Edit the project config inside OUTPUT_DIR folder
-# .github/issue-sync/.env
+# Edit the project config in the script folder
+# .github-issue-sync/.env
 ```
 
-Advanced: If you need a different base, run the first sync with an absolute
+Advanced: If you need a different base, run init with an absolute
 `OUTPUT_DIR` so the template folder seeds correctly.
+
+Note: `--dry-run` still requires `GITHUB_REPO` to be set.
 
 ## Usage
 
@@ -94,7 +90,7 @@ python .github-issue-sync/sync_issues.py --repo owner/repo
 
 ## Configuration
 
-Configure `.github/issue-sync/.env` in your project:
+Configure `.github-issue-sync/.env` in your project:
 
 ```bash
 # Required: GitHub repository to sync
@@ -119,7 +115,8 @@ LOG_LEVEL=INFO
 
 ```
 your-project/
-├── .env                    # Your configuration
+├── .github-issue-sync/
+│   └── .env                # Your configuration
 ├── .github/
 │   └── issue-sync/
 │       ├── issues/

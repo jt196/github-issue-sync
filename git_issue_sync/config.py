@@ -23,11 +23,13 @@ PLANS_DIRNAME = "plans"
 
 def _load_env() -> Optional[Path]:
     """Load .env from common locations, returning the path if found."""
+    script_root = Path(__file__).resolve().parents[1]
     candidates = [
         Path.cwd() / ".env",
         Path.cwd() / ".github" / ISSUE_SYNC_DIRNAME / ".env",
         Path.cwd() / ISSUE_SYNC_DIRNAME / ".env",
         Path.cwd().parent / ".github" / ISSUE_SYNC_DIRNAME / ".env",
+        script_root / ".env",
     ]
     for candidate in candidates:
         if candidate.exists():
@@ -62,6 +64,7 @@ class Config:
     log_level: str = "INFO"
     single_issue: Optional[int] = None
     legacy_output_dir: Optional[Path] = None
+    init_only: bool = False
 
     @property
     def issue_sync_dir(self) -> Path:
@@ -164,19 +167,27 @@ Examples:
         dest="single_issue",
         help="Sync only a specific issue number.",
     )
+    parser.add_argument(
+        "--init",
+        dest="init_only",
+        action="store_true",
+        help="Seed .github/issue-sync templates and exit.",
+    )
 
     args = parser.parse_args()
 
     # Build configuration with priority: CLI > env > defaults
     github_repo = args.github_repo or os.getenv("GITHUB_REPO")
-    if not github_repo:
+    if not github_repo and not args.init_only:
         parser.error(
             "GitHub repository is required. Set GITHUB_REPO in .env or use --repo"
         )
 
     # Validate repo format
-    if "/" not in github_repo or len(github_repo.split("/")) != 2:
+    if github_repo and ("/" not in github_repo or len(github_repo.split("/")) != 2):
         parser.error(f"Invalid repository format: {github_repo}. Use owner/repo format.")
+    if not github_repo:
+        github_repo = "owner/repo"
 
     output_dir = Path(
         args.output_dir or os.getenv("OUTPUT_DIR", str(DEFAULT_OUTPUT_DIR))
@@ -205,4 +216,5 @@ Examples:
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         single_issue=args.single_issue,
         legacy_output_dir=legacy_output_dir,
+        init_only=args.init_only,
     )
