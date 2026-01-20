@@ -170,16 +170,20 @@ def seed_project_templates(config: Config) -> None:
         shutil.copytree(seed_root, issue_sync_dir)
         return
 
-    plan_template = seed_root / "plans" / "plan-template.md"
-    if not plan_template.exists():
-        return
+    def copy_if_missing(source: Path, destination: Path) -> None:
+        if not source.exists() or destination.exists():
+            return
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, destination)
 
-    dest_template = config.plans_dir / "plan-template.md"
-    if dest_template.exists():
-        return
+    copy_if_missing(
+        seed_root / "plans" / "plan-template.md",
+        config.plans_dir / "plan-template.md",
+    )
+    copy_if_missing(seed_root / "AGENTS.md", issue_sync_dir / "AGENTS.md")
+    copy_if_missing(seed_root / "CLAUDE.md", issue_sync_dir / "CLAUDE.md")
+    copy_if_missing(seed_root / ".env", issue_sync_dir / ".env")
 
-    config.plans_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(plan_template, dest_template)
 
 
 def main():

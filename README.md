@@ -16,9 +16,15 @@ Sync GitHub issues to local markdown files for use with AI coding assistants.
 - Python 3.8+
 - [GitHub CLI](https://cli.github.com/) (`gh`) - installed and authenticated
 
-## Installation
+## Recommended Folder Structure
 
-### Option 1: Git Submodule (Recommended)
+```bash
+project-root/ 
+    .github-issue-sync/ # cloned directory or submodule
+    .github/ # default location OUTPUT_DIR will place the issue-sync/ folder
+```
+
+## Installation
 
 Add to your project as a submodule:
 
@@ -34,17 +40,15 @@ git clone https://github.com/jt196/github-issue-sync
 
 ## Setup
 
-1. **Install dependencies** (virtual environment recommended):
+1. **Install dependencies** (virtual environment recommended) in project root:
 
 ```bash
-# Create and activate virtual environment
+# Create and activate virtual environment (if one doesn't already exist)
 python -m venv .venv
 source .venv/bin/activate  # Linux/macOS
 # .venv\Scripts\activate   # Windows
 
 # Install dependencies
-pip install -r requirements.txt
-# Or if using as submodule:
 pip install -r .github-issue-sync/requirements.txt
 ```
 
@@ -57,37 +61,37 @@ gh auth login
 1. **Configure**:
 
 ```bash
-# Copy example config
-cp .env.example .env  # or .github-issue-sync/.env.example .env
+# First run seeds `.github/issue-sync/` in your project
+python .github-issue-sync/sync_issues.py --dry-run
 
-# Edit .env with your repository
-# GITHUB_REPO=owner/repo
+# Edit the project config inside OUTPUT_DIR folder
+# .github/issue-sync/.env
 ```
 
 ## Usage
 
+Run from your project root so relative paths resolve correctly:
+
 ```bash
-# Basic sync
-python sync_issues.py
-# Or if using as submodule:
+# Sync from project root
 python .github-issue-sync/sync_issues.py
 
 # Sync a single issue
-python sync_issues.py --issue 42
+python .github-issue-sync/sync_issues.py --issue 42
 
 # With options
-python sync_issues.py --verbose          # Verbose output
-python sync_issues.py --dry-run          # Preview without writing
-python sync_issues.py --force-images     # Re-download all images
-python sync_issues.py --sync-closed      # Include closed issues
+python .github-issue-sync/sync_issues.py --verbose          # Verbose output
+python .github-issue-sync/sync_issues.py --dry-run          # Preview without writing
+python .github-issue-sync/sync_issues.py --force-images     # Re-download all images
+python .github-issue-sync/sync_issues.py --sync-closed      # Include closed issues
 
 # Override repo from command line
-python sync_issues.py --repo owner/repo
+python .github-issue-sync/sync_issues.py --repo owner/repo
 ```
 
 ## Configuration
 
-Create a `.env` file in your project root:
+Configure `.github/issue-sync/.env` in your project:
 
 ```bash
 # Required: GitHub repository to sync
@@ -141,19 +145,8 @@ The script computes a content hash for each issue based on:
 
 Agent instructions are in `AGENTS.md` (symlinked as `CLAUDE.md`).
 
-The `issue-sync/` folder in this repo contains:
-- `plan-template.md` - Default template for implementation plans
-- On first run, this gets copied to your project under `.github/issue-sync/`
-
-## Running from your project
-
-Run the script from your project root so `.env` and `.github/` resolve correctly:
-
-```bash
-python .github-issue-sync/sync_issues.py
-```
-
-If you run it from another directory, set `OUTPUT_DIR` to an absolute path.
+The `issue-sync/` folder in this repo contains templates and agent files.
+On first run, it gets copied to your project under `.github/issue-sync/`.
 
 Configure agent behavior in `.env`:
 ```bash

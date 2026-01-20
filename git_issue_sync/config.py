@@ -21,6 +21,22 @@ ISSUES_DIRNAME = "issues"
 PLANS_DIRNAME = "plans"
 
 
+def _load_env() -> Optional[Path]:
+    """Load .env from common locations, returning the path if found."""
+    candidates = [
+        Path.cwd() / ".env",
+        Path.cwd() / ".github" / ISSUE_SYNC_DIRNAME / ".env",
+        Path.cwd() / ISSUE_SYNC_DIRNAME / ".env",
+        Path.cwd().parent / ".github" / ISSUE_SYNC_DIRNAME / ".env",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            load_dotenv(candidate)
+            return candidate
+    load_dotenv()
+    return None
+
+
 
 @dataclass
 class Config:
@@ -95,8 +111,8 @@ def load_config() -> Config:
     3. .env file
     4. Default values
     """
-    # Load .env file from current working directory
-    load_dotenv()
+    # Load .env file from common locations
+    _load_env()
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
