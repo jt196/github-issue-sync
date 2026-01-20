@@ -68,6 +68,9 @@ python .github-issue-sync/sync_issues.py --dry-run
 # .github/issue-sync/.env
 ```
 
+Advanced: If you need a different base, run the first sync with an absolute
+`OUTPUT_DIR` so the template folder seeds correctly.
+
 ## Usage
 
 Run from your project root so relative paths resolve correctly:
