@@ -19,6 +19,7 @@ DEFAULT_OUTPUT_DIR = Path(".github")
 ISSUE_SYNC_DIRNAME = "issue-sync"
 ISSUES_DIRNAME = "issues"
 PLANS_DIRNAME = "plans"
+SUBMODULE_DIRNAME = ".github-issue-sync"
 
 
 def _load_env() -> Optional[Path]:
@@ -26,10 +27,13 @@ def _load_env() -> Optional[Path]:
     script_root = Path(__file__).resolve().parents[1]
     candidates = [
         Path.cwd() / ".env",
+        Path.cwd() / SUBMODULE_DIRNAME / ".env",
         Path.cwd() / ".github" / ISSUE_SYNC_DIRNAME / ".env",
         Path.cwd() / ISSUE_SYNC_DIRNAME / ".env",
+        Path.cwd().parent / SUBMODULE_DIRNAME / ".env",
         Path.cwd().parent / ".github" / ISSUE_SYNC_DIRNAME / ".env",
         script_root / ".env",
+        Path(__file__).resolve().parent / ".env",
     ]
     for candidate in candidates:
         if candidate.exists():
@@ -180,7 +184,8 @@ Examples:
     github_repo = args.github_repo or os.getenv("GITHUB_REPO")
     if not github_repo and not args.init_only:
         parser.error(
-            "GitHub repository is required. Set GITHUB_REPO in .env or use --repo"
+            "GitHub repository is required. Set GITHUB_REPO in "
+            ".github-issue-sync/.env or .github/issue-sync/.env, or use --repo"
         )
 
     # Validate repo format
