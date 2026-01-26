@@ -1,0 +1,9 @@
+[project]
+name = "github-issue-sync"
+version = "0.1.0"
+description = "Sync GitHub issues to local markdown files for AI assistants."
+requires-python = ">=3.8"
+dependencies = [
+    "python-dotenv>=1.0.0",
+    "requests>=2.28.0",
+]

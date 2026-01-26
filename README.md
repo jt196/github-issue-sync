@@ -39,6 +39,15 @@ git submodule add https://github.com/jt196/github-issue-sync .github-issue-sync
 
 1. **Install dependencies** (virtual environment recommended) in project root:
 
+Option A: `uv`
+
+```bash
+cd .github-issue-sync
+uv sync
+```
+
+Option B: `pip`
+
 ```bash
 # Create and activate virtual environment (if one doesn't already exist)
 python -m venv .venv
@@ -78,6 +87,9 @@ Run from your project root so relative paths resolve correctly:
 # Sync from project root
 python .github-issue-sync/sync_issues.py
 
+# Sync with uv
+uv run --directory .github-issue-sync python sync_issues.py
+
 # Sync a single issue
 python .github-issue-sync/sync_issues.py --issue 42
 
@@ -89,6 +101,34 @@ python .github-issue-sync/sync_issues.py --sync-closed      # Include closed iss
 
 # Override repo from command line
 python .github-issue-sync/sync_issues.py --repo owner/repo
+```
+
+### Append a plan to an issue comment
+
+To avoid overwriting issue bodies, you can post a plan as a new comment.
+If a comment already exists with the marker, it will be updated in place.
+
+```bash
+.github-issue-sync/issue-sync/append_plan_comment.py 78
+```
+
+Optional flags:
+
+```bash
+# Use a specific repo (if gh default isn't set)
+.github-issue-sync/issue-sync/append_plan_comment.py 78 --repo owner/repo
+
+# Preview without posting
+.github-issue-sync/issue-sync/append_plan_comment.py 78 --dry-run
+```
+
+The script reads `.github/issue-sync/plans/<issue>.md`, verifies the issue
+exists, and posts the plan as a new comment.
+
+With uv:
+
+```bash
+uv run --directory .github-issue-sync python issue-sync/append_plan_comment.py 78
 ```
 
 ## Configuration
