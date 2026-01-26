@@ -7,6 +7,8 @@ Customize the project copy as needed.
 
 ## Recommended Plan Format
 
+filename: `{issue_number}.md` e.g. *76.md*
+
 ```markdown
 # Plan: Issue #XX - [Title]
 
