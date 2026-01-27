@@ -109,17 +109,17 @@ To avoid overwriting issue bodies, you can post a plan as a new comment.
 If a comment already exists with the marker, it will be updated in place.
 
 ```bash
-.github-issue-sync/issue-sync/append_plan_comment.py 78
+.github-issue-sync/git_issue-sync/append_plan_comment.py 78
 ```
 
 Optional flags:
 
 ```bash
 # Use a specific repo (if gh default isn't set)
-.github-issue-sync/issue-sync/append_plan_comment.py 78 --repo owner/repo
+.github-issue-sync/git_issue-sync/append_plan_comment.py 78 --repo owner/repo
 
 # Preview without posting
-.github-issue-sync/issue-sync/append_plan_comment.py 78 --dry-run
+.github-issue-sync/git_issue-sync/append_plan_comment.py 78 --dry-run
 ```
 
 The script reads `.github/issue-sync/plans/<issue>.md`, verifies the issue
@@ -128,7 +128,7 @@ exists, and posts the plan as a new comment.
 With uv:
 
 ```bash
-uv run --directory .github-issue-sync python issue-sync/append_plan_comment.py 78
+uv run --directory .github-issue-sync python git_issue-sync/append_plan_comment.py 78
 ```
 
 ## Configuration
