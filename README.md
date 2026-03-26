@@ -19,12 +19,10 @@ Sync GitHub issues to local markdown files for use with AI coding assistants.
 ## Recommended Folder Structure
 
 ```bash
-project-root/ 
-    .github-issue-sync/ # cloned directory or submodule
-    .github/ # default location OUTPUT_DIR will place the issue-sync/ folder
 your-project/
 ├── .github-issue-sync/  # cloned directory or submodule
-├── .github/ # default location OUTPUT_DIR will place the issue-sync/ folder
+└── .github/
+    └── issue-sync/      # generated output
 ```
 
 ## Installation
@@ -37,25 +35,10 @@ git submodule add https://github.com/jt196/github-issue-sync .github-issue-sync
 
 ## Setup
 
-1. **Install dependencies** (virtual environment recommended) in project root:
-
-Option A: `uv`
+1. **Install dependencies**:
 
 ```bash
-cd .github-issue-sync
-uv sync
-```
-
-Option B: `pip`
-
-```bash
-# Create and activate virtual environment (if one doesn't already exist)
-python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
-
-# Install dependencies
-pip install -r .github-issue-sync/requirements.txt
+uv sync --directory .github-issue-sync
 ```
 
 1. **Authenticate with GitHub CLI** (if not already):
@@ -81,27 +64,28 @@ Note: `--dry-run` still requires `GITHUB_REPO` to be set.
 
 ## Usage
 
-Run from your project root so relative paths resolve correctly:
+Run from your project root.
 
 ```bash
-# Sync from project root
-python .github-issue-sync/sync_issues.py
-
 # Sync with uv
 uv run --directory .github-issue-sync python sync_issues.py
 
 # Sync a single issue
-python .github-issue-sync/sync_issues.py --issue 42
+uv run --directory .github-issue-sync python sync_issues.py --issue 42
 
 # With options
-python .github-issue-sync/sync_issues.py --verbose          # Verbose output
-python .github-issue-sync/sync_issues.py --dry-run          # Preview without writing
-python .github-issue-sync/sync_issues.py --force-images     # Re-download all images
-python .github-issue-sync/sync_issues.py --sync-closed      # Include closed issues
+uv run --directory .github-issue-sync python sync_issues.py --verbose          # Verbose output
+uv run --directory .github-issue-sync python sync_issues.py --dry-run          # Preview without writing
+uv run --directory .github-issue-sync python sync_issues.py --force-images     # Re-download all images
+uv run --directory .github-issue-sync python sync_issues.py --sync-closed      # Include closed issues
 
 # Override repo from command line
-python .github-issue-sync/sync_issues.py --repo owner/repo
+uv run --directory .github-issue-sync python sync_issues.py --repo owner/repo
 ```
+
+`uv run --directory .github/issue-sync ...` is not correct unless you move the
+tool itself into `.github/issue-sync`. In the default layout, `.github/issue-sync`
+is generated output, not the Python project.
 
 ### Append a plan to an issue comment
 
