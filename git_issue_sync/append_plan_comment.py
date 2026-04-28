@@ -31,13 +31,40 @@ def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
 def get_repo_root() -> str:
     proc = run(["git", "rev-parse", "--show-toplevel"])
     if proc.returncode == 0:
-        return proc.stdout.strip()
+        root = proc.stdout.strip()
+        parent = os.path.dirname(root)
+        if (
+            os.path.basename(root) == ".github-issue-sync"
+            and os.path.isdir(os.path.join(parent, ".github", "issue-sync"))
+        ):
+            return parent
+        return root
     return os.getcwd()
 
 
-def resolve_repo(explicit_repo: str | None) -> str | None:
+def read_env_value(path: str, key: str) -> str | None:
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            name, value = line.split("=", 1)
+            if name.strip() == key:
+                return value.strip().strip("\"'")
+    return None
+
+
+def resolve_repo(explicit_repo: str | None, repo_root: str) -> str | None:
     if explicit_repo:
         return explicit_repo
+    env_repo = os.getenv("GITHUB_REPO") or read_env_value(
+        os.path.join(repo_root, ".github-issue-sync", ".env"),
+        "GITHUB_REPO",
+    )
+    if env_repo:
+        return env_repo
     proc = run(["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"])
     if proc.returncode != 0:
         return None
@@ -57,6 +84,7 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = get_repo_root()
+    os.chdir(repo_root)
     plan_dir = args.plan_dir or os.path.join(repo_root, ".github/issue-sync/plans")
     plan_path = os.path.join(plan_dir, f"{args.issue_number}.md")
 
@@ -71,7 +99,7 @@ def main() -> int:
         print(f"Plan file is empty: {plan_path}", file=sys.stderr)
         return 1
 
-    repo = resolve_repo(args.repo)
+    repo = resolve_repo(args.repo, repo_root)
     if not repo:
         print("Unable to resolve repository. Provide --repo or run within a git repo.", file=sys.stderr)
         return 1
